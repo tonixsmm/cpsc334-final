@@ -18,4 +18,5 @@ RUN apt-get update && \
 WORKDIR /app
 COPY --from=builder /workspace/target/*-shaded.jar /app/pandemic.jar
 
-ENTRYPOINT ["sh", "-c", "xvfb-run -s '-screen 0 1024x768x16' java -jar /app/pandemic.jar x11vnc -display :99 -nopw tail -f /dev/null"]
+# ENTRYPOINT ["sh", "-c", "xvfb-run -s '-screen 0 1024x768x16' java -jar /app/pandemic.jar x11vnc -display :99 -nopw tail -f /dev/null"]
+CMD ["java", "-jar", "/app/pandemic.jar"]
