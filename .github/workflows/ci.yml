@@ -1,0 +1,108 @@
+name: CI
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  packages: write      
+  id-token: write      
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
+  JAVA_VERSION: "17"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Compile sources
+        run: mvn -B clean compile
+
+  test:
+    name: Test (≥ 10 JUnit 5)
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Run unit tests
+        run: mvn -B test
+
+  lint:
+    name: Lint (Spotless + Checkstyle + SpotBugs)
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Run linters
+        run: |
+          mvn -B spotless:check checkstyle:check spotbugs:check
+
+  package:
+    name: Package (Docker)
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build fat‑JAR & verify
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - run: mvn -B verify          
+      - name: Build Docker image
+        run: docker build -t ${{ env.REGISTRY_IMAGE }}:${{ github.sha }} .
+
+      - name: Upload image as artifact (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: pandemic-image
+          path: |
+            /tmp/image.tar
+        if: false   
+
+  deploy:
+    name: Push to GHCR
+    runs-on: ubuntu-latest
+    needs: package
+    if: github.ref == 'refs/heads/main'  
+    
+    steps:
+      - name: Login to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        run: docker push ${{ env.REGISTRY_IMAGE }}:${{ github.sha }}

@@ -1,0 +1,11 @@
+{
+  "name": "Pandemic‑Game Dev Container",
+  "build": {
+    "context": ".",
+    "dockerfile": "Dockerfile.dev"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "mvn -B test"
+}
