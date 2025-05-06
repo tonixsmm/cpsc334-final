@@ -8,11 +8,7 @@ FROM ubuntu:22.04
 ENV JAVA_VERSION=17
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        openjdk-${JAVA_VERSION}-jre \
-        xvfb \
-        x11-utils \        
-        xauth && \
+    apt-get install -y --no-install-recommends openjdk-${JAVA_VERSION}-jre-headless && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
