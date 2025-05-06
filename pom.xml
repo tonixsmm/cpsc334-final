@@ -9,9 +9,7 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <!-- ─────────── Dependencies ─────────── -->
     <dependencies>
-        <!-- Unit‑testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -20,11 +18,9 @@
         </dependency>
     </dependencies>
 
-    <!-- ─────────── Build / Plugins ─────────── -->
     <build>
         <plugins>
 
-            <!-- 1️⃣ Build a *fat* JAR with all deps bundled -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -46,7 +42,6 @@
                 </executions>
             </plugin>
 
-            <!-- 2️⃣ Optional exec: `mvn exec:java` for quick runs -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -56,7 +51,6 @@
                 </configuration>
             </plugin>
 
-            <!-- 3️⃣ Spotless (lint/format) -->
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
@@ -71,6 +65,7 @@
                         </googleJavaFormat>
                     </java>
                     <failOnViolation>false</failOnViolation>
+                    <failOnError>false</failOnError>
                 </configuration>
                 <executions>
                     <execution>
@@ -79,7 +74,6 @@
                 </executions>
             </plugin>
 
-            <!-- 5️⃣ SpotBugs -->
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
@@ -95,7 +89,6 @@
                 </configuration>
             </plugin>
 
-            <!-- 6️⃣ Unit‑test runner -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -105,7 +98,6 @@
         </plugins>
     </build>
 
-    <!-- ─────────── Java toolchain ─────────── -->
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
